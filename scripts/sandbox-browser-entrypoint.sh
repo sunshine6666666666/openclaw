@@ -17,6 +17,10 @@ NOVNC_PASSWORD="${OPENCLAW_BROWSER_NOVNC_PASSWORD:-${CLAWDBOT_BROWSER_NOVNC_PASS
 
 mkdir -p "${HOME}" "${HOME}/.chrome" "${XDG_CONFIG_HOME}" "${XDG_CACHE_HOME}"
 
+# Clean stale display/profile locks from previous crashed runs.
+rm -f /tmp/.X1-lock /tmp/.X11-unix/X1
+rm -f "${HOME}/.chrome/SingletonLock" "${HOME}/.chrome/SingletonCookie" "${HOME}/.chrome/SingletonSocket"
+
 Xvfb :1 -screen 0 1280x800x24 -ac -nolisten tcp &
 
 if [[ "${HEADLESS}" == "1" ]]; then
@@ -52,6 +56,9 @@ if [[ "${ALLOW_NO_SANDBOX}" == "1" ]]; then
   CHROME_ARGS+=(
     "--no-sandbox"
     "--disable-setuid-sandbox"
+    # Suppress the "unsupported command-line flag" infobar in containerized fallback mode.
+    "--test-type"
+    "--disable-infobars"
   )
 fi
 
